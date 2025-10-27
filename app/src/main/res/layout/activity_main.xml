@@ -165,6 +165,7 @@
                 android:inputType="text"/>
             
             <Button
+                android:id="@+id/fetchWeatherButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#2B3A67"
