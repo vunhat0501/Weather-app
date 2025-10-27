@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 int resId = getResources().getIdentifier(resourceName, "drawable", getPackageName());
                 wertherIcon.setImageResource(resId);
                 cityNameText.setText(jsonObject.getString("name"));
-                temperatureText.setText(String.format("%.0f", temperature));
+                temperatureText.setText(String.format("%.0f°C", temperature));
                 humidityText.setText(String.format("%.0f%%", humidity));
                 windText.setText(String.format("%.0f Km/h", windSpeed));
                 descriptionText.setText(description);
