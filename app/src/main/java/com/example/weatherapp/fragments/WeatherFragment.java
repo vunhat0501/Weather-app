@@ -44,7 +44,6 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     // --- All your variables from MainActivity go here ---
     private final String API_KEY = BuildConfig.API_KEY;
     private TextView cityNameText, temperatureText, humidityText, descriptionText, windText;
-    private ImageView weatherIcon; // Sửa lỗi typo 'wertherIcon'
     private Button refreshButton;
     private EditText cityNameInput;
     private LocationHandler locationHandler;
@@ -101,9 +100,6 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         humidityText = view.findViewById(R.id.humidityText);
         windText = view.findViewById(R.id.windText);
         descriptionText = view.findViewById(R.id.descriptionText);
-        weatherIcon = view.findViewById(R.id.weatherIcon);
-        cityInputLayout = view.findViewById(R.id.cityInputLayout);
-        searchIcon = view.findViewById(R.id.searchIcon);
         cityNameInput = view.findViewById(R.id.cityNameInput);
         refreshButton = view.findViewById(R.id.fetchWeatherButton);
         // Find the city input block
@@ -231,14 +227,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             windText.setText(String.format("%.0f Km/h", windSpeed));
             descriptionText.setText(description);
 
-            // Cập nhật Icon
-            int resId;
-            switch (iconCode) {
-                case "01d": resId = R.drawable.ic_01d; break;
-                case "01n": resId = R.drawable.ic_01n; break;
-                default: resId = R.drawable.ic_01d;
-            }
-            weatherIcon.setImageResource(resId);
+
 
         } catch (JSONException e) {
             e.printStackTrace();

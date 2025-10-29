@@ -39,14 +39,11 @@ public class LocationHandler {
             return;
         }
 
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(activity, new OnSuccessListener<Location>(){
-            @Override
-            public void onSuccess(Location location){
-                if (location != null){
-                    locationResultListener.onLocationFound(location);
-                    } else {
-                    locationResultListener.onLocationError();
-                }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(activity, location -> {
+            if (location != null){
+                locationResultListener.onLocationFound(location);
+            } else {
+                locationResultListener.onLocationError();
             }
         });
     }
