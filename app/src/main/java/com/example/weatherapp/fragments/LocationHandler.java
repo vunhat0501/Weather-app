@@ -1,6 +1,5 @@
-package com.example.weatherapp;
+package com.example.weatherapp.fragments;
 
-import android.app.Activity;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.widget.Toast;

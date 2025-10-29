@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cityInputLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/background_block"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <EditText
+        android:id="@+id/cityNameInput"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:autofillHints="New York"
+        android:fontFamily="@font/urbanist"
+        android:gravity="center"
+        android:hint="Enter City Name"
+        android:inputType="text"
+        android:padding="12dp"
+        android:textColor="#EFEFEF"
+        android:textColorHint="#BFBFBF"
+        android:textSize="24sp" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2B3A67"
+        android:fontFamily="@font/urbanist"
+        android:text="Change City"
+        android:textColor="#FFF"
+        android:textSize="20sp" />
+
+</LinearLayout>
