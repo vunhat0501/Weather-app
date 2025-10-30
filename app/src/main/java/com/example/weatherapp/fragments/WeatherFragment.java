@@ -2,6 +2,7 @@ package com.example.weatherapp.fragments;
 
 import android.location.Location;
 import android.os.Bundle;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import com.example.weatherapp.R;
 import com.example.weatherapp.adapter.HourlyForecastAdapter;
 import com.example.weatherapp.hourlyforecast.HourlyForecast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,7 +59,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     private LinearLayout cityInputLayout;
     private ImageView searchIcon;
     private ImageView gpsIcon;
-
+    private ExecutorService executorService;
     // A special "constructor" for Fragments
     public static WeatherFragment newInstance(boolean isGpsMode) {
         WeatherFragment fragment = new WeatherFragment();
@@ -73,6 +75,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         if (getArguments() != null) {
             isGpsMode = getArguments().getBoolean("IS_GPS_MODE");
         }
+        executorService = Executors.newSingleThreadExecutor();
         requestPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
@@ -107,7 +110,6 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         cityInputLayout = view.findViewById(R.id.cityInputLayout);
         searchIcon = view.findViewById(R.id.searchIcon);
         gpsIcon = view.findViewById(R.id.gpsIcon);
-
         locationHandler = new LocationHandler((AppCompatActivity) getActivity(), this);
         // This is the magic:
         if (isGpsMode) {
@@ -126,7 +128,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             cityInputLayout.setVisibility(View.GONE); // Explicitly hide on create
             gpsIcon.setVisibility(View.GONE);
 
-            FetchWeatherData("Hanoi");
+            FetchWeatherData("Hanoi, VN");
             // TODO: Put your manual "Change City" button logic here
             // Set the click listener for the icon
             searchIcon.setOnClickListener(v -> {
@@ -151,7 +153,6 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
 
         // 1. Find the RecyclerView
         hourlyRecyclerView = view.findViewById(R.id.hourlyForecastRecyclerView);
-
         // 2. Create the Layout Manager
         LinearLayoutManager horizontalLayoutManager =
                 new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
@@ -166,32 +167,71 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     }
     @Override
     public void onLocationFound(Location location) {
-        FetchWeatherData(location.getLatitude(), location.getLongitude());
+        double lat = location.getLatitude();
+        double lon = location.getLongitude();
+        FetchWeatherData(lat, lon);
+        FetchCityNameFromCoords(lat,lon);
     }
 
     @Override
     public void onLocationPermissionDenied() {
         Toast.makeText(getContext(), "Quyền bị từ chối. Đang tải dữ liệu mặc định.", Toast.LENGTH_SHORT).show();
-        FetchWeatherData("Hanoi");
+        FetchWeatherData("Hanoi, VN");
     }
 
     @Override
     public void onLocationError() {
         Toast.makeText(getContext(), "Không thể lấy vị trí. Tải dữ liệu mặc định", Toast.LENGTH_SHORT).show();
-        FetchWeatherData("Hanoi");
+        FetchWeatherData("Hanoi, VN");
     }
     private void FetchWeatherData(double lat, double lon) {
-        String url = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric";
-        executeWeatherRequest(url, "Lỗi API");
+        // Sửa URL sang One Call 3.0
+        String url = "https://api.openweathermap.org/data/3.0/onecall?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric&exclude=minutely,daily,alerts";
+
+        // Dùng chung executeWeatherRequest
+        executeWeatherRequest(url, "Lỗi API thời tiết");
     }
 
     private void FetchWeatherData(String cityName) {
-        String url = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + API_KEY + "&units=metric";
-        executeWeatherRequest(url, "Không tìm thấy thành phố");
+        String geoUrl = "https://api.openweathermap.org/geo/1.0/direct?q=" + cityName + "&limit=1&appid=" + API_KEY;
+        executorService.execute(() -> {
+            OkHttpClient client = new OkHttpClient();
+            Request geoRequest = new Request.Builder().url(geoUrl).build();
+            try {
+                Response geoResponse = client.newCall(geoRequest).execute();
+                if (geoResponse.isSuccessful() && geoResponse.body() != null) {
+                    String geoResult = geoResponse.body().string();
+
+                    // Phân tích JSON của Geocoding (nó là một mảng)
+                    JSONArray jsonArray = new JSONArray(geoResult);
+                    if (jsonArray.length() > 0) {
+                        JSONObject geoObject = jsonArray.getJSONObject(0);
+                        double lat = geoObject.getDouble("lat");
+                        double lon = geoObject.getDouble("lon");
+                        // Bước 2: Gọi One Call API với tọa độ vừa tìm được
+                        FetchWeatherData(lat, lon);
+
+                    } else {
+                        // Không tìm thấy thành phố
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Không tìm thấy thành phố", Toast.LENGTH_SHORT).show());
+                        }
+                    }
+                } else {
+                    if (getActivity() != null) {
+                        getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Lỗi Geocoding", Toast.LENGTH_SHORT).show());
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> Toast.makeText(getContext(), "Lỗi mạng (Geo)", Toast.LENGTH_SHORT).show());
+                }
+            }
+        });
     }
 
     private void executeWeatherRequest(String url, String errorMsg) {
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
         executorService.execute(() ->
         {
             OkHttpClient client = new OkHttpClient();
@@ -217,25 +257,61 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             }
         });
     }
+    // hàm chuyển kinh độ vĩ độ về tên thành phố
+    private void FetchCityNameFromCoords(double lat, double lon) {
+        String reverseGeoUrl = "https://api.openweathermap.org/geo/1.0/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&appid=" + API_KEY;
+
+        executorService.execute(() -> {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(reverseGeoUrl).build();
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful() && response.body() != null) {
+                    String result = response.body().string();
+                    JSONArray jsonArray = new JSONArray(result);
+                    if (jsonArray.length() > 0) {
+                        JSONObject geoObject = jsonArray.getJSONObject(0);
+                        // Lấy tên thành phố từ API Geocoding
+                        String cityName = geoObject.getString("name");
+
+                        // Cập nhật UI (trên luồng chính)
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(() -> {
+                                // Chỉ cập nhật tên thành phố
+                                cityNameText.setText(cityName);
+                            });
+                        }
+                    }
+                }
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                // Không làm gì nếu lỗi, chỉ là không hiển thị được tên
+            }
+        });
+    }
     private void updateUI(String result) {
-        // TODO: Phân tích JSON để cập nhật cả RecyclerView (hourlyForecasts)
         try {
             JSONObject jsonObject = new JSONObject(result);
-            JSONObject main = jsonObject.getJSONObject("main");
-            double temperature = main.getDouble("temp");
-            double humidity = main.getDouble("humidity");
-            double windSpeed = jsonObject.getJSONObject("wind").getDouble("speed");
-            String description = jsonObject.getJSONArray("weather").getJSONObject(0).getString("description");
-            String iconCode = jsonObject.getJSONArray("weather").getJSONObject(0).getString("icon");
+            JSONObject current = jsonObject.getJSONObject("current");
 
-            // Cập nhật các View chính
-            cityNameText.setText(jsonObject.getString("name"));
+            double temperature = current.getDouble("temp");
+            double humidity = current.getDouble("humidity");
+            double windSpeed = current.getDouble("wind_speed");
+            String description = current.getJSONArray("weather").getJSONObject(0).getString("description");
+            if (isGpsMode) {
+            } else {
+                String searchedName = cityNameInput.getText().toString().trim();
+                if (!searchedName.isEmpty()) {
+                    cityNameText.setText(searchedName);
+                } else {
+                    cityNameText.setText("Hanoi");
+                }
+            }
+
             temperatureText.setText(String.format("%.0f°C", temperature));
             humidityText.setText(String.format("%.0f%%", humidity));
             windText.setText(String.format("%.0f Km/h", windSpeed));
             descriptionText.setText(description);
-
-
 
         } catch (JSONException e) {
             e.printStackTrace();
