@@ -56,6 +56,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     private boolean isGpsMode;
     private LinearLayout cityInputLayout;
     private ImageView searchIcon;
+    private ImageView gpsIcon;
 
     // A special "constructor" for Fragments
     public static WeatherFragment newInstance(boolean isGpsMode) {
@@ -105,11 +106,16 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         // Find the city input block
         cityInputLayout = view.findViewById(R.id.cityInputLayout);
         searchIcon = view.findViewById(R.id.searchIcon);
+        gpsIcon = view.findViewById(R.id.gpsIcon);
+
         locationHandler = new LocationHandler((AppCompatActivity) getActivity(), this);
         // This is the magic:
         if (isGpsMode) {
             searchIcon.setVisibility(View.GONE);
             cityInputLayout.setVisibility(View.GONE);
+            searchIcon.setVisibility(View.GONE);
+            gpsIcon.setVisibility(View.VISIBLE);
+
             // TODO: Put all your GPS logic here
             // 1. Request location permissions
             // 2. Get user's coordinates
@@ -118,6 +124,8 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         } else {
             searchIcon.setVisibility(View.VISIBLE);
             cityInputLayout.setVisibility(View.GONE); // Explicitly hide on create
+            gpsIcon.setVisibility(View.GONE);
+
             FetchWeatherData("Hanoi");
             // TODO: Put your manual "Change City" button logic here
             // Set the click listener for the icon
