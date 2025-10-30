@@ -33,6 +33,14 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/day1_weather_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_01d" />
+
+
             <TextView
                 android:id="@+id/day1_min_temp"
                 android:layout_width="wrap_content"
@@ -40,6 +48,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="18°"
+                android:minWidth="40dp"
                 android:textColor="#BFBFBF"
                 android:textSize="18sp" />
 
@@ -51,6 +60,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="25°"
+                android:minWidth="40dp"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -74,6 +84,13 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
+            <ImageView
+                android:id="@+id/day2_weather_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_01d" />
+
             <TextView
                 android:id="@+id/day2_min_temp"
                 android:layout_width="wrap_content"
@@ -81,6 +98,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="19°"
+                android:minWidth="40dp"
                 android:textColor="#BFBFBF"
                 android:textSize="18sp" />
 
@@ -92,6 +110,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="26°"
+                android:minWidth="40dp"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -116,6 +135,13 @@
                 android:textStyle="bold"
                 tools:text="Wednesday" />
 
+            <ImageView
+                android:id="@+id/day3_weather_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_01d" />
+
             <TextView
                 android:id="@+id/day3_min_temp"
                 android:layout_width="wrap_content"
@@ -123,6 +149,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="20°"
+                android:minWidth="40dp"
                 android:textColor="#BFBFBF"
                 android:textSize="18sp"
                 tools:text="20°" />
@@ -135,6 +162,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="28°"
+                android:minWidth="40dp"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -160,6 +188,13 @@
                 android:textStyle="bold"
                 tools:text="Thursday" />
 
+            <ImageView
+                android:id="@+id/day4_weather_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_01d" />
+
             <TextView
                 android:id="@+id/day4_min_temp"
                 android:layout_width="wrap_content"
@@ -167,6 +202,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="21°"
+                android:minWidth="40dp"
                 android:textColor="#BFBFBF"
                 android:textSize="18sp"
                 tools:text="21°" />
@@ -179,6 +215,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="29°"
+                android:minWidth="40dp"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -204,6 +241,13 @@
                 android:textStyle="bold"
                 tools:text="Friday" />
 
+            <ImageView
+                android:id="@+id/day5_weather_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/ic_01d" />
+
             <TextView
                 android:id="@+id/day5_min_temp"
                 android:layout_width="wrap_content"
@@ -211,6 +255,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="19°"
+                android:minWidth="40dp"
                 android:textColor="#BFBFBF"
                 android:textSize="18sp"
                 tools:text="19°" />
@@ -223,6 +268,7 @@
                 android:fontFamily="@font/urbanist"
                 android:gravity="end"
                 android:text="27°"
+                android:minWidth="40dp"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
