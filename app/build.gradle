@@ -9,12 +9,12 @@ if (rootProject.file("local.properties").exists()) {
 
 android {
     namespace 'com.example.weatherapp'
-    compileSdk 34
+    compileSdk 36
 
     defaultConfig {
         applicationId "com.example.weatherapp"
         minSdk 29
-        targetSdk 34
+        targetSdk 36
         versionCode 1
         versionName "1.0"
 
