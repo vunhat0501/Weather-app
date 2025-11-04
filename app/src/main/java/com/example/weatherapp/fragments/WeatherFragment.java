@@ -175,7 +175,8 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         hourlyRecyclerView.setLayoutManager(horizontalLayoutManager);
 
         // 3. Create sample data
-        createSampleData();
+        // init empty array to avoid nullpointer exception
+        hourlyForecasts = new ArrayList<>();
 
         // 4. Create and set the adapter
         hourlyAdapter = new HourlyForecastAdapter(hourlyForecasts);
@@ -338,6 +339,13 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             }
             // --- KẾT THÚC PHẦN MỚI ---
 
+            // add function to call updateHourlyForecast
+            if (jsonObject.has("hourly")) {
+                JSONArray hourlyArray = jsonObject.getJSONArray("hourly");
+                updateHourlyForecast(hourlyArray);
+            }
+            // --- KẾT THÚC SỬA LỖI ---
+
         } catch (JSONException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "Lỗi phân tích dữ liệu", Toast.LENGTH_SHORT).show();
@@ -451,18 +459,75 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         // Nếu không tìm thấy icon (resId == 0), trả về một icon mặc định
         return (resId != 0) ? resId : R.drawable.ic_01d;
     }
+
     // --- KẾT THÚC PHẦN MỚI ---
 
+    // New function for updating weather hourly
+    // --- HÀM MỚI ĐỂ CẬP NHẬT DỰ BÁO HÀNG GIỜ ---
 
-    // Your helper method is now part of the fragment
-    private void createSampleData() {
-        hourlyForecasts = new ArrayList<>();
-        hourlyForecasts.add(new HourlyForecast("Now", "25°", "5 km/h", R.drawable.ic_01d));
-        hourlyForecasts.add(new HourlyForecast("3 PM", "24°", "6 km/h", R.drawable.ic_01d));
-        hourlyForecasts.add(new HourlyForecast("4 PM", "22°", "7 km/h", R.drawable.ic_01d));
-        hourlyForecasts.add(new HourlyForecast("5 PM", "21°", "7 km/h", R.drawable.ic_01d));
-        hourlyForecasts.add(new HourlyForecast("6 PM", "20°", "5 km/h", R.drawable.ic_01d));
-        hourlyForecasts.add(new HourlyForecast("7 PM", "19°", "4 km/h", R.drawable.ic_01d));
-        // ... add all 24 hours here
+    /**
+     * HÀM MỚI: Cập nhật RecyclerView dự báo hàng giờ từ dữ liệu JSON.
+     * @param hourlyArray Mảng JSON "hourly" từ One Call API
+     */
+    private void updateHourlyForecast(JSONArray hourlyArray) throws JSONException {
+        // Tạo một danh sách tạm thời để chứa dữ liệu mới
+        List<HourlyForecast> newHourlyList = new ArrayList<>();
+
+        // API trả về 48 giờ, nhưng ta chỉ cần hiển thị 24 giờ cho hợp lý
+        int hoursToDisplay = Math.min(hourlyArray.length(), 24);
+
+        for (int i = 0; i < hoursToDisplay; i++) {
+            JSONObject hourForecast = hourlyArray.getJSONObject(i);
+
+            // 1. Lấy và định dạng thời gian
+            long dt = hourForecast.getLong("dt");
+            // i == 0 nghĩa là giờ hiện tại, dùng "Now"
+            String time = getFormattedHour(dt, i == 0);
+
+            // 2. Lấy và định dạng nhiệt độ
+            double temp = hourForecast.getDouble("temp");
+            String temperature = String.format(Locale.getDefault(), "%.0f°", temp);
+
+            // 3. Lấy và định dạng tốc độ gió
+            // Lưu ý: API trả về m/s. Code của bạn đang hiển thị "Km/h"
+            // cho cả current wind. Để nhất quán, chúng ta sẽ làm tương tự
+            // (Mặc dù đúng ra phải * 3.6 để ra km/h)
+            double windSpeed = hourForecast.getDouble("wind_speed");
+            String wind = String.format(Locale.getDefault(), "%.0f km/h", windSpeed);
+
+            // 4. Lấy Icon (Tận dụng hàm đã có)
+            JSONObject weatherObject = hourForecast.getJSONArray("weather").getJSONObject(0);
+            String iconCode = weatherObject.getString("icon");
+            int iconResId = getIconResourceId(iconCode);
+
+            // 5. Thêm vào danh sách
+            newHourlyList.add(new HourlyForecast(time, temperature, wind, iconResId));
+        }
+
+        // Cập nhật danh sách gốc (đang chứa data mẫu) và thông báo cho Adapter
+        if (hourlyForecasts != null && hourlyAdapter != null) {
+            hourlyForecasts.clear(); // Xóa dữ liệu mẫu
+            hourlyForecasts.addAll(newHourlyList); // Thêm dữ liệu thật
+            hourlyAdapter.notifyDataSetChanged(); // Yêu cầu RecyclerView vẽ lại
+        }
     }
+
+    /**
+     * HÀM MỚI (Hỗ trợ): Đổi timestamp (giây) sang định dạng giờ (ví dụ: "Now", "3 PM").
+     * @param timeStamp Thời gian từ API (tính bằng giây)
+     * @param isFirst   True nếu đây là mục đầu tiên (giờ hiện tại)
+     * @return String đã định dạng (ví dụ: "Now" hoặc "3 PM")
+     */
+    private String getFormattedHour(long timeStamp, boolean isFirst) {
+        if (isFirst) {
+            return "Now";
+        }
+        // Chuyển đổi giây sang mili giây
+        Date date = new Date(timeStamp * 1000L);
+        // Định dạng "h a" trả về giờ và AM/PM (ví dụ: "3 PM")
+        SimpleDateFormat sdf = new SimpleDateFormat("h a", Locale.getDefault());
+        return sdf.format(date);
+    }
+    // --- KẾT THÚC PHẦN MỚI ---
+    // Your helper method is now part of the fragment
 }
