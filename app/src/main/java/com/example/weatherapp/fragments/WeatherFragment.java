@@ -182,12 +182,13 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         hourlyAdapter = new HourlyForecastAdapter(hourlyForecasts);
         hourlyRecyclerView.setAdapter(hourlyAdapter);
     }
+
     @Override
     public void onLocationFound(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
         FetchWeatherData(lat, lon);
-        FetchCityNameFromCoords(lat,lon);
+        FetchCityNameFromCoords(lat, lon);
     }
 
     @Override
@@ -201,6 +202,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
         Toast.makeText(getContext(), "Không thể lấy vị trí. Tải dữ liệu mặc định", Toast.LENGTH_SHORT).show();
         FetchWeatherData("Hanoi, VN");
     }
+
     private void FetchWeatherData(double lat, double lon) {
         // --- SỬA ĐỔI: Bỏ 'daily' khỏi 'exclude' để lấy dữ liệu dự báo hàng ngày ---
         String url = "https://api.openweathermap.org/data/3.0/onecall?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric&exclude=minutely,alerts";
@@ -274,6 +276,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             }
         });
     }
+
     // hàm chuyển kinh độ vĩ độ về tên thành phố
     private void FetchCityNameFromCoords(double lat, double lon) {
         String reverseGeoUrl = "https://api.openweathermap.org/geo/1.0/reverse?lat=" + lat + "&lon=" + lon + "&limit=1&appid=" + API_KEY;
@@ -306,6 +309,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
             }
         });
     }
+
     private void updateUI(String result) {
         try {
             JSONObject jsonObject = new JSONObject(result);
@@ -353,8 +357,10 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     }
 
     // --- MỚI: Hàm tìm và gán các View cho dự báo hàng ngày ---
+
     /**
      * HÀM MỚI: Tìm và gán các View cho dự báo hàng ngày từ layout.
+     *
      * @param view View gốc của Fragment (từ onViewCreated)
      */
     private void initDailyForecastViews(View view) {
@@ -387,8 +393,10 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
 
 
     // --- MỚI: Hàm để cập nhật UI dự báo 5 ngày ---
+
     /**
      * HÀM MỚI: Cập nhật UI dự báo 5 ngày từ dữ liệu JSON.
+     *
      * @param dailyArray Mảng JSON "daily" từ One Call API
      */
     private void updateDailyForecast(JSONArray dailyArray) throws JSONException {
@@ -425,6 +433,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     // --- KẾT THÚC PHẦN MỚI ---
 
     // --- MỚI: Hàm hỗ trợ đổi timestamp (giây) sang tên ngày (ví dụ: "Wednesday") ---
+
     /**
      * HÀM MỚI (Hỗ trợ): Đổi timestamp (giây) sang tên ngày (ví dụ: "Wednesday").
      */
@@ -438,6 +447,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
     // --- KẾT THÚC PHẦN MỚI ---
 
     // --- MỚI: Hàm hỗ trợ đổi mã icon API (ví dụ "01d") sang ID drawable (ví dụ R.drawable.ic_01d) ---
+
     /**
      * HÀM MỚI (Hỗ trợ): Đổi mã icon API (ví dụ "01d") sang ID drawable (ví dụ R.drawable.ic_01d).
      */
@@ -467,6 +477,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
 
     /**
      * HÀM MỚI: Cập nhật RecyclerView dự báo hàng giờ từ dữ liệu JSON.
+     *
      * @param hourlyArray Mảng JSON "hourly" từ One Call API
      */
     private void updateHourlyForecast(JSONArray hourlyArray) throws JSONException {
@@ -514,6 +525,7 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
 
     /**
      * HÀM MỚI (Hỗ trợ): Đổi timestamp (giây) sang định dạng giờ (ví dụ: "Now", "3 PM").
+     *
      * @param timeStamp Thời gian từ API (tính bằng giây)
      * @param isFirst   True nếu đây là mục đầu tiên (giờ hiện tại)
      * @return String đã định dạng (ví dụ: "Now" hoặc "3 PM")
