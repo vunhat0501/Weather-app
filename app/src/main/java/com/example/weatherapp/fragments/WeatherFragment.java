@@ -271,21 +271,28 @@ public class WeatherFragment extends Fragment implements LocationResultListener 
                     JSONArray jsonArray = new JSONArray(result);
                     if (jsonArray.length() > 0) {
                         JSONObject geoObject = jsonArray.getJSONObject(0);
-                        // Lấy tên thành phố từ API Geocoding
                         String cityName = geoObject.getString("name");
 
-                        // Cập nhật UI (trên luồng chính)
                         if (getActivity() != null) {
                             getActivity().runOnUiThread(() -> {
-                                // Chỉ cập nhật tên thành phố
                                 cityNameText.setText(cityName);
                             });
                         }
+                    } else {
+                        // API không tìm thấy tên, ném lỗi để đi xuống catch
+                        throw new JSONException("Không tìm thấy tên thành phố");
                     }
+                } else {
+                    // API trả về lỗi (401, 404...), ném lỗi để đi xuống catch
+                    throw new IOException("Lỗi API Geocoding: " + response.message());
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
-                // Không làm gì nếu lỗi, chỉ là không hiển thị được tên
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        cityNameText.setText(String.format("%.2f, %.2f", lat, lon));
+                    });
+                }
             }
         });
     }
